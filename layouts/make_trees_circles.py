@@ -1,0 +1,63 @@
+
+x_length = 25
+x_trees = 5
+y_length = 25
+y_trees = 5
+
+strip_length = 15.2
+leds_per_strip = 300
+
+circle_radius = 1
+z_height = 2
+
+###########################################
+import math
+
+
+x_spacing = x_length/x_trees
+y_spacing = y_length/y_trees
+
+x_offset = x_spacing/2
+y_offset = y_spacing/2
+
+circumference = 2 * math.pi * circle_radius
+leds_in_circle = int(circumference * leds_per_strip/strip_length)
+
+pos_data = []
+
+
+def make_circle(x_center, y_center):
+
+	points = []
+	for j in range(leds_in_circle):
+		theta = j / leds_in_circle * math.pi * 2
+		x_cir = math.sin(theta) * circle_radius
+		y_cir = math.cos(theta) * circle_radius
+		points.append([x_cir + x_center, y_cir + y_center, z_height])
+
+	return points
+
+
+def print_pos_data():
+	for coordinate in pos_data:
+		print(coordinate[0], '\t', coordinate[1])
+
+
+def write_to_file(filename):
+	string = "[\n"
+	lines = ['{"point": [%.2f, %.2f, %.2f]}' % (coordinate[0], coordinate[1], coordinate[2]) for coordinate in pos_data]
+	string += ',\n'.join(lines) + '\n]'
+
+	with open(f"{filename}.json", "w") as f:
+		f.write(string)
+
+
+for y_tree in range(0, y_trees):
+	y_tree_c = (y_tree * y_spacing) + y_offset - (y_length/2)
+	for x_tree in range(0, x_trees):
+		x_tree_c = (x_tree * x_spacing) + x_offset - (x_length/2)
+		pos_data += make_circle(x_tree_c, y_tree_c)
+
+
+write_to_file('trees_circles')
+print(f"Total Pixels: {len(pos_data)}")
