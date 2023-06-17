@@ -28,7 +28,7 @@ specific language governing permissions and limitations under the License. */
 #include "opc.h"
 
 opc_source source = -1;
-int verbose = 0;
+int verbose = 1;
 
 // Camera parameters
 #define FOV_DEGREES 20
@@ -43,7 +43,7 @@ double camera_aspect = 1.0;  // will be updated to match window aspect ratio
 // Shape parameters
 #define SHAPE_THICKNESS 0.06  // thickness of points and lines, metres
 
-#define MAX_CHANNELS 10
+#define MAX_CHANNELS 255
 int channel_offsets[MAX_CHANNELS];
 int channel_num_pixels[MAX_CHANNELS];
 int num_channels= 0;
