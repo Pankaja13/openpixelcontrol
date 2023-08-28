@@ -60,4 +60,4 @@ for y_tree in range(0, y_trees):
 
 
 for index, channel in enumerate(channels):
-	write_to_file(f'trees_circles_{index+1}', channel)
+	write_to_file(f'output/trees_circles_{index+1}', channel)
