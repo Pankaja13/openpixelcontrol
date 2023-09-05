@@ -23,6 +23,8 @@ y_offset = y_spacing/2
 circumference = 2 * math.pi * circle_radius
 leds_in_circle = int(circumference * leds_per_strip/strip_length)
 
+print("leds_in_circle", leds_in_circle)
+
 channels = []
 
 
