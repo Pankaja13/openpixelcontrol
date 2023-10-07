@@ -57,5 +57,5 @@ class Tree:
 		return self.led_functions[self.mode](self.tree_data)
 
 	def send_data(self, pixels):
-		print("channel", self.channel)
+		# print("channel", self.channel)
 		return self.clients.get(self.host).put_pixels(pixels, channel=self.channel)

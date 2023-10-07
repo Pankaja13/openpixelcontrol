@@ -17,7 +17,7 @@ if __name__ == '__main__':
 				# for each tree
 				pixels = tree.get_pixels()
 				if pixels:
-					print(number)
+					# print(number)
 					tree.send_data(pixels)
 			# break
 
