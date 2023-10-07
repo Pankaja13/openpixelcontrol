@@ -7,7 +7,7 @@ y_trees = 5
 strip_length = 4.87
 leds_per_strip = 300
 
-circle_radius = 0.5
+circle_radius = 0.7751
 z_height = 2
 
 ###########################################

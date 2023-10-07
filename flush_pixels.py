@@ -2,9 +2,9 @@
 from python import opc
 
 # everything is a nail
-NUMBER_OF_PIXELS = 10000
+NUMBER_OF_PIXELS = 1000
 
-IP_PORT = '127.0.0.1:7890'
+IP_PORT = '10.0.0.37:7890'
 
 
 client = opc.Client(IP_PORT)
@@ -20,9 +20,10 @@ pixels = []
 for led in range(NUMBER_OF_PIXELS):
     pixels.append((0, 0, 0))
 client.put_pixels(pixels, channel=0)
+client.put_pixels(pixels, channel=0)
+client.put_pixels(pixels, channel=0)
 
 print(f"{NUMBER_OF_PIXELS} pixels flushed!")
-
 
 
 
