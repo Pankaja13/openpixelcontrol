@@ -3,7 +3,7 @@ from enum import Enum
 
 from python import opc
 from python.config import leds_per_ring
-from python.modes import twinkle, lightning, rain
+from python.modes import twinkle, lightning, rain, circle_load
 
 
 def off_leds(_data):
@@ -15,6 +15,7 @@ class Modes(Enum):
 	TWINKLE = 2
 	LIGHTNING = 3
 	RAIN = 4
+	CIRCLE_LOAD = 4
 
 
 class Tree:
@@ -24,14 +25,16 @@ class Tree:
 		Modes.OFF: lambda: None,
 		Modes.TWINKLE: twinkle.twinkle_init,
 		Modes.LIGHTNING: lightning.init,
-		Modes.RAIN: rain.rain_init
+		Modes.RAIN: rain.rain_init,
+		Modes.CIRCLE_LOAD: circle_load.init
 	}
 
 	led_functions = {
 		Modes.OFF: off_leds,
 		Modes.TWINKLE: twinkle.twinkle_leds,
 		Modes.LIGHTNING: lightning.update,
-		Modes.RAIN: rain.rain_leds
+		Modes.RAIN: rain.rain_leds,
+		Modes.CIRCLE_LOAD: circle_load.update
 	}
 
 	def __init__(self, mode: Modes, host, channel):
