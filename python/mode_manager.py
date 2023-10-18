@@ -15,8 +15,8 @@ class Modes(Enum):
 	TWINKLE = 2
 	LIGHTNING = 3
 	RAIN = 4
-	CIRCLE_LOAD = 4
-	JUMP = 4
+	CIRCLE_LOAD = 5
+	JUMP = 6
 
 
 class Tree:
@@ -57,8 +57,8 @@ class Tree:
 			self.clients[host] = client
 
 	def get_pixels(self):
-		if datetime.datetime.now() - self.last_led_update < datetime.timedelta(milliseconds=50):
-			return None
+		# if datetime.datetime.now() - self.last_led_update < datetime.timedelta(milliseconds=10):
+		# 	return None
 		self.last_led_update = datetime.datetime.now()
 		return self.led_functions[self.mode](self.tree_data)
 

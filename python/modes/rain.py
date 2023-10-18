@@ -22,7 +22,7 @@ def get_led_color():
 
 def rain_init_led():
 	# color, current brightness, isIncreasing?, rate, lastTime
-	rate = random.randrange(20, 40)
+	rate = random.randrange(1, 8)
 	now = datetime.now()
 	return [get_led_color(), 0, True, rate, now]
 

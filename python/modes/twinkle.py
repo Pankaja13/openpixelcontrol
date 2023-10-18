@@ -7,7 +7,7 @@ from python.utils import random_rgb
 
 def twinkle_init_led():
 	# color, current brightness, isIncreasing?, rate, lastTime
-	rate = random.randrange(5, 20)
+	rate = random.randrange(1, 3)
 	now = datetime.datetime.now()
 	return [random_rgb(), 0, True, rate, now]
 
@@ -38,7 +38,7 @@ def twinkle_leds(data):
 				data['leds'][led][2] = False
 		else:
 			brightness -= rate
-			if brightness < 5:
+			if brightness < 2:
 				kill_list.append(led)
 		data['leds'][led][1] = brightness
 
