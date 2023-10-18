@@ -3,14 +3,14 @@ import time
 from python.config import trees_config
 from python.mode_manager import Modes, Tree
 from python.utils import flush_all_pixels
-import multiprocessing
 
 if __name__ == '__main__':
 
 	trees_data = []
 
 	for this_tree_config in trees_config:
-		trees_data.append(Tree(Modes.JUMP, this_tree_config['host'], this_tree_config['channel']))
+		mode = Modes(this_tree_config.get('default_mode')) or Modes.OFF
+		trees_data.append(Tree(mode, this_tree_config['host'], this_tree_config['channel']))
 
 	try:
 		while True:
@@ -20,7 +20,6 @@ if __name__ == '__main__':
 				# for each tree
 				pixels = tree.get_pixels()
 				if pixels:
-
 					tree.send_data(pixels)
 
 				fps = 1 / (time.time() - start)
