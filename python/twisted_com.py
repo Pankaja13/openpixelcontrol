@@ -1,6 +1,4 @@
-import time
-
-from twisted.internet import reactor, protocol
+from twisted.internet import protocol
 from twisted.internet.protocol import ReconnectingClientFactory
 
 
@@ -40,19 +38,3 @@ class Factory(ReconnectingClientFactory):
 	def clientConnectionFailed(self, connector, reason):
 		print('Connection failed. Reason:', reason)
 		ReconnectingClientFactory.clientConnectionFailed(self, connector, reason)
-
-
-if __name__ == '__main__':
-
-	def initFunction():
-		while True:
-			print('yo')
-			time.sleep(1)
-
-	f = Factory()
-	for x in range(1, 26):
-		reactor.connectTCP("localhost", 3000 + x, f)
-	reactor.connectTCP("localhost", 4000, f)
-
-	# reactor.callWhenRunning(initFunction)
-	reactor.run()

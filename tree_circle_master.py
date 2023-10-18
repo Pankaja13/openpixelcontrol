@@ -1,37 +1,47 @@
 import time
 
+from twisted.internet import reactor, task
+
 from python.config import trees_config
 from python.mode_manager import Modes, Tree
+from python.twisted_com import Factory
 from python.utils import flush_all_pixels
 
-if __name__ == '__main__':
+trees_data = []
 
-	trees_data = []
+for this_tree_config in trees_config:
+	mode_id = this_tree_config.get('default_mode') or 1
+	trees_data.append(Tree(Modes(mode_id), this_tree_config['host'], this_tree_config['channel']))
 
-	for this_tree_config in trees_config:
-		mode = Modes(this_tree_config.get('default_mode')) or Modes.OFF
-		trees_data.append(Tree(mode, this_tree_config['host'], this_tree_config['channel']))
 
-	try:
-		while True:
-			list_start = time.time()
-			for number, tree in enumerate(trees_data):
-				start = time.time()
-				# for each tree
-				pixels = tree.get_pixels()
-				if pixels:
-					tree.send_data(pixels)
+def update_leds():
+	list_start = time.time()
+	for number, tree in enumerate(trees_data):
+		start = time.time()
+		# for each tree
+		pixels = tree.get_pixels()
+		if pixels:
+			tree.send_data(pixels)
 
-				fps = 1 / (time.time() - start)
-				print(f"fps: {int(fps)}")
-			print(time.time() - list_start)
-			time.sleep(0.001)
+		current_fps = 1 / (time.time() - start)
+		print(f"fps: {int(current_fps)}")
+	print(time.time() - list_start)
+	time.sleep(0.001)
 
-			# break
 
-	finally:
-		# pass
-		for tree in trees_data:
-			# for _ in range(3):
-			flush_all_pixels(tree.send_data)
-			# time.sleep(0.1)
+f = Factory()
+for x in range(1, 26):
+	reactor.connectTCP("localhost", 3000 + x, f)
+reactor.connectTCP("localhost", 4000, f)
+
+fps = 120
+
+loop = task.LoopingCall(update_leds)
+loopDeferred = loop.start(1 / fps)
+# loopDeferred.addErrback(ebLoopFailed)
+
+try:
+	reactor.run()
+finally:
+	for tree in trees_data:
+		flush_all_pixels(tree.send_data)
