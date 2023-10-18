@@ -41,7 +41,7 @@ SET_PIXEL_COLOURS = 0  # "Set pixel colours" command (see openpixelcontrol.org)
 
 
 class Client(object):
-    def __init__(self, server_ip_port, long_connection=True, verbose=False):
+    def __init__(self, server_ip_port, long_connection=True, verbose=False, protocol="TCP"):
         """Create an OPC client object which sends pixels to an OPC server.
 
         server_ip_port should be an ip:port or hostname:port as a single string.
@@ -69,6 +69,7 @@ class Client(object):
 
         self._ip, self._port = server_ip_port.split(':')
         self._port = int(self._port)
+        self._protocol = protocol
 
         self._socket = None  # will be None when we're not connected
 
@@ -88,7 +89,12 @@ class Client(object):
 
         try:
             self._debug('_ensure_connected: trying to connect...')
-            self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            if self._protocol == "TCP":
+                self._debug('Using TCP')
+                self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            else:
+                self._debug('Using UDP')
+                self._socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             self._socket.settimeout(1)
             self._socket.connect((self._ip, self._port))
             self._debug('_ensure_connected:    ...success')

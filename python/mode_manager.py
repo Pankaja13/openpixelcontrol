@@ -48,7 +48,7 @@ class Tree:
 		self.channel = channel
 
 		if host not in self.clients:
-			client = opc.Client(host)
+			client = opc.Client(host, protocol="UDP")
 
 			if client.can_connect():
 				print('connected to %s' % host)
