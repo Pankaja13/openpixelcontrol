@@ -2,7 +2,7 @@ import datetime
 from enum import Enum
 
 from python import opc
-from python.config import leds_per_ring
+from python.config import leds_per_ring, PROTOCOL
 from python.modes import twinkle, lightning, rain, circle_load, jump
 
 
@@ -48,7 +48,7 @@ class Tree:
 		self.channel = channel
 
 		if host not in self.clients:
-			client = opc.Client(host, protocol="UDP")
+			client = opc.Client(host, protocol=PROTOCOL)
 
 			if client.can_connect():
 				print('connected to %s' % host)
