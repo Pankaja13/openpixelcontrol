@@ -56,6 +56,11 @@ class Tree:
 				print('WARNING: could not connect to %s' % host)
 			self.clients[host] = client
 
+	def reinit(self, mode):
+		self.tree_data = self.init_functions[mode]()
+		self.mode = mode
+		self.last_led_update = datetime.datetime.now()
+
 	def get_pixels(self):
 		# if datetime.datetime.now() - self.last_led_update < datetime.timedelta(milliseconds=10):
 		# 	return None

@@ -11,14 +11,10 @@ class Client(protocol.Protocol):
 
 	def connectionMade(self):
 		arg = sys.argv[1] if len(sys.argv) > 1 else "hi"
+		data = arg.encode('ascii')
 		self.transport.write(arg.encode('ascii'))
+		print(f"sent => {data}")
 		self.transport.loseConnection()
-
-	def dataReceived(self, data):
-		print("data recieved from server:", data)
-
-	def connectionLost(self, reason):
-		print("connection lost")
 
 
 class Factory(protocol.ClientFactory):
@@ -28,11 +24,9 @@ class Factory(protocol.ClientFactory):
 		self.master_sender = master_sender
 
 	def clientConnectionFailed(self, connector, reason):
-		print("Connection failed - goodbye!")
 		reactor.stop()
 
 	def clientConnectionLost(self, connector, reason):
-		print("Connection lost - goodbye!")
 		reactor.stop()
 
 	def buildProtocol(self, addr):
@@ -42,5 +36,4 @@ class Factory(protocol.ClientFactory):
 if __name__ == '__main__':
 	f = Factory()
 	reactor.connectTCP("localhost", 2000, f)
-
 	reactor.run()
