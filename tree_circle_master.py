@@ -23,9 +23,13 @@ def update_leds():
 		if pixels:
 			tree.send_data(pixels)
 
-		current_fps = 1 / (time.time() - start)
-	# print(f"fps: {int(current_fps)}")
-	# print(time.time() - list_start)
+		try:
+			current_fps = 1 / (time.time() - start)
+			print(f"fps: {int(current_fps)}")
+		except ZeroDivisionError:
+			pass
+
+	print(time.time() - list_start)
 	time.sleep(0.001)
 
 
