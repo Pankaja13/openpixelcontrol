@@ -8,7 +8,7 @@ strip_length = 4.87
 leds_per_strip = 300
 
 circle_radius = 0.7751
-z_height = 2
+z_height = 3
 
 ###########################################
 import math
@@ -62,4 +62,4 @@ for y_tree in range(0, y_trees):
 
 
 for index, channel in enumerate(channels):
-	write_to_file(f'output/trees_circles_{index+1}', channel)
+	write_to_file(f'output/trees_circles_{(index+1):02}', channel)
