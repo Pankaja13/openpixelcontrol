@@ -37,7 +37,7 @@ def data_received(data, port):
 		cmd_tree = int(split_msg[0])
 		if split_msg[1] == "mode":
 			new_mode = Modes(int(split_msg[2]))
-			tree_obj: Tree = trees_data[cmd_tree]
+			tree_obj: Tree = trees_data[cmd_tree - 1]
 			tree_obj.reinit(new_mode)
 			print(tree_obj.mode)
 		print(split_msg)
