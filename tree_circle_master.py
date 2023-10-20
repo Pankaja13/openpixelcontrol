@@ -2,7 +2,7 @@ import time
 
 from twisted.internet import reactor, task
 
-from python.config import trees_config, PYTHON_CONTROL_PORT
+from python.config import trees_config, PYTHON_CONTROL_PORT, PD_TREE_PORT_PREFIX
 from python.mode_manager import Modes, Tree
 from python.twisted_com import Factory
 from python.utils import flush_all_pixels
@@ -35,16 +35,30 @@ def update_leds():
 
 def data_received(data, port):
 	print(f"{port} ==> {data}")
+	decoded_data = data.decode('ascii')
+	split_msg = decoded_data[:-1].split(' ')
+	print(split_msg)
+
 	if port == PYTHON_CONTROL_PORT:
-		decoded_data = data.decode('ascii')
-		split_msg = decoded_data[:-1].split(' ')
 		cmd_tree = int(split_msg[0])
 		if split_msg[1] == "mode":
 			new_mode = Modes(int(split_msg[2]))
 			tree_obj: Tree = trees_data[cmd_tree - 1]
 			tree_obj.reinit(new_mode)
 			print(tree_obj.mode)
-		print(split_msg)
+	else:
+		# message from tree
+		if PD_TREE_PORT_PREFIX < port < PD_TREE_PORT_PREFIX + 25:
+			try:
+				tree_no = port - 3000
+				tree_obj: Tree = trees_data[tree_no - 1]
+				if tree_obj.mode == Modes.RAIN:
+					if len(split_msg) >= 2 and split_msg[0] == "amplitude":
+						print('yo')
+						amplitude = split_msg[1]
+						tree_obj.tree_data['mode_data']['rain_leds'] = int(amplitude)
+			except IndexError:
+				pass
 
 
 def loop_failed(failure):

@@ -52,6 +52,9 @@ def rain_leds(data):
 
 	lightning_data = data['mode_data']
 
+	# kill more leds
+	kill_leds_faster = len(data['leds']) > lightning_data['rain_leds']
+
 	if lightning_data['should_trigger'] and not lightning_data['is_on']:
 		intensity = lightning_data['intensity']
 		pixels = [(intensity, intensity, intensity) for _ in range(leds_per_ring)]
@@ -78,6 +81,8 @@ def rain_leds(data):
 				if brightness > 250:
 					data['leds'][led][2] = False
 			else:
+				if kill_leds_faster:
+					rate = rate * 20
 				brightness -= rate
 				if brightness < 5:
 					kill_list.append(led)
@@ -96,17 +101,13 @@ def rain_leds(data):
 			del data['leds'][kill_led]
 
 			# Let Die
-			if len(data['leds']) > lightning_data['rain_leds']:
-				print("too many")
-				return
+			if not len(data['leds']) > lightning_data['rain_leds']:
+				led_rebirth()
 
-			led_rebirth()
-
+	# adding leds
 	if len(data['leds']) < lightning_data['rain_leds']:
 		missing_count = lightning_data['rain_leds'] - len(data['leds'])
 		for _ in range(missing_count):
 			led_rebirth()
-
-	print(len(data['leds']))
 
 	return pixels
