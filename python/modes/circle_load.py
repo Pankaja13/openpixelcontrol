@@ -1,14 +1,17 @@
 import random
 from datetime import datetime, timedelta
 
-from python.color_utils import rotate
+from python.color_utils import rotate, random_hls, hls_to_rgb_normalized
 from python.config import leds_per_ring
 
 
 def init():
+	rand_hls = random_hls()
+	hue, light, sat = rand_hls
+	rgb_color = hls_to_rgb_normalized(hue, light, sat)
 	return {'circle_load_data': {
 		"is_filling": True,
-		"color": (255, 100, 100),
+		"color": rgb_color,
 		"load_duration": timedelta(seconds=0.4),
 		"fade_duration": timedelta(seconds=2),
 		"load_start_time": datetime.now(),

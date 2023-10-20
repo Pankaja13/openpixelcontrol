@@ -4,7 +4,10 @@
 
 from __future__ import division
 
+import colorsys
+import random
 from collections import deque
+from colorsys import rgb_to_hls
 
 import math
 
@@ -101,3 +104,16 @@ def rotate(this_list, amount):
 	d = deque(this_list)
 	d.rotate(amount)
 	return list(d)
+
+
+def normalize(color_tuple):
+	return tuple([round(255 * x) for x in color_tuple])
+
+
+def random_hls(lightness=0.5, saturation=1.0):
+	return random.random(), lightness, saturation
+
+
+def hls_to_rgb_normalized(hue, light, sat):
+	print(">>", (hue, light, sat))
+	return normalize(colorsys.hls_to_rgb(hue, light, sat))
