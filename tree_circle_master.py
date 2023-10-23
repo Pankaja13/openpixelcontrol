@@ -2,7 +2,7 @@ import time
 
 from twisted.internet import reactor, task
 
-from python.config import trees_config, PYTHON_CONTROL_PORT, PD_TREE_PORT_PREFIX
+from python.config import trees_config, PYTHON_CONTROL_PORT, PD_TREE_PORT_PREFIX, SHOW_FPS
 from python.mode_manager import Modes, Tree
 from python.twisted_com import Factory
 from python.utils import flush_all_pixels
@@ -25,11 +25,12 @@ def update_leds():
 
 		try:
 			current_fps = 1 / (time.time() - start)
-			print(f"fps: {int(current_fps)}")
+			if SHOW_FPS:
+				print(f"fps: {int(current_fps)}")
 		except ZeroDivisionError:
 			pass
-
-	print(time.time() - list_start)
+	if SHOW_FPS:
+		print(time.time() - list_start)
 	time.sleep(0.001)
 
 
