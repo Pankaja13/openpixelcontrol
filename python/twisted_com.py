@@ -23,6 +23,8 @@ class Client(protocol.Protocol):
 
 
 class Factory(ReconnectingClientFactory):
+	maxDelay = 2  # Maximum delay between connection attempts (in seconds)
+	factor = 1.5  # Factor by which the delay increases after each attempt
 	master_sender = None
 
 	def __init__(self, data_callback: callable, master_sender=False):
