@@ -51,7 +51,7 @@ def data_received(data, port):
 		# message from tree
 		if PD_TREE_PORT_PREFIX < port < PD_TREE_PORT_PREFIX + 25:
 			try:
-				tree_no = port - 3000
+				tree_no = port - PD_TREE_PORT_PREFIX
 				tree_obj: Tree = trees_data[tree_no - 1]
 
 				if tree_obj.mode == Modes.RAIN:
@@ -77,9 +77,9 @@ def loop_failed(failure):
 
 
 f = Factory(data_received)
-for x in range(1, 26):
-	reactor.connectTCP("localhost", 3000 + x, f)
-reactor.connectTCP("localhost", 4000, f)
+for x in range(2, 26):
+	reactor.connectTCP("localhost", PD_TREE_PORT_PREFIX + x, f)
+reactor.connectTCP("localhost", PYTHON_CONTROL_PORT, f)
 
 fps = 120
 
