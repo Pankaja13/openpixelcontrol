@@ -3,7 +3,7 @@ from enum import Enum
 
 from python import opc
 from python.config import leds_per_ring, PROTOCOL
-from python.modes import twinkle, lightning, rain, circle_load, jump
+from python.modes import twinkle, lightning, rain, circle_load, jump, shimmer
 
 
 def off_leds(_data):
@@ -17,6 +17,7 @@ class Modes(Enum):
 	RAIN = 4
 	CIRCLE_LOAD = 5
 	JUMP = 6
+	SHIMMER = 7
 
 
 class Tree:
@@ -28,7 +29,8 @@ class Tree:
 		Modes.LIGHTNING: lightning.init,
 		Modes.RAIN: rain.rain_init,
 		Modes.CIRCLE_LOAD: circle_load.init,
-		Modes.JUMP: jump.init
+		Modes.JUMP: jump.init,
+		Modes.SHIMMER: shimmer.init
 	}
 
 	led_functions = {
@@ -37,7 +39,8 @@ class Tree:
 		Modes.LIGHTNING: lightning.update,
 		Modes.RAIN: rain.rain_leds,
 		Modes.CIRCLE_LOAD: circle_load.update,
-		Modes.JUMP: jump.update
+		Modes.JUMP: jump.update,
+		Modes.SHIMMER: shimmer.update
 	}
 
 	def __init__(self, mode: Modes, host, channel):
