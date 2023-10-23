@@ -37,9 +37,9 @@ def rain_init():
 	mode_data = {
 		"is_on": False,
 		"intensity": 250,
-		"should_trigger": True,
+		"should_trigger": False,
 		"trigger_time": None,
-		"on_duration_ms": 1000,
+		"on_duration_ms": 100,
 		"rain_leds": 300
 	}
 

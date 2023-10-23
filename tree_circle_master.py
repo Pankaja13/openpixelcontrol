@@ -52,11 +52,17 @@ def data_received(data, port):
 			try:
 				tree_no = port - 3000
 				tree_obj: Tree = trees_data[tree_no - 1]
+
 				if tree_obj.mode == Modes.RAIN:
 					if len(split_msg) >= 2 and split_msg[0] == "amplitude":
-						print('yo')
-						amplitude = split_msg[1]
-						tree_obj.tree_data['mode_data']['rain_leds'] = int(amplitude)
+						# set amplitude
+						amplitude = int(split_msg[1])
+						tree_obj.tree_data['mode_data']['rain_leds'] = amplitude
+
+						if amplitude > 250:
+							# activate lightening
+							tree_obj.tree_data['mode_data']['should_trigger'] = True
+							pass
 			except IndexError:
 				pass
 
