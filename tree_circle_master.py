@@ -2,7 +2,7 @@ import time
 
 from twisted.internet import reactor, task
 
-from python.config import trees_config, PYTHON_CONTROL_PORT, PD_TREE_PORT_PREFIX, SHOW_FPS
+from python.config import trees_config, PYTHON_CONTROL_PORT, PD_TREE_PORT_PREFIX, SHOW_FPS, SHOW_LAST_UPDATE
 from python.mode_manager import Modes, Tree
 from python.twisted_com import Factory
 from python.utils import flush_all_pixels
@@ -13,9 +13,15 @@ for this_tree_config in trees_config:
 	mode_id = this_tree_config.get('default_mode') or 1
 	trees_data.append(Tree(Modes(mode_id), this_tree_config['host'], this_tree_config['channel']))
 
+last_update = 0
+
 
 def update_leds():
 	list_start = time.time()
+	global last_update
+	if SHOW_LAST_UPDATE:
+		print('last Update', time.time() - last_update)
+	last_update = time.time()
 	for number, tree in enumerate(trees_data):
 		start = time.time()
 		# for each tree
@@ -31,7 +37,7 @@ def update_leds():
 			pass
 	if SHOW_FPS:
 		print(time.time() - list_start)
-	time.sleep(0.001)
+	# time.sleep(0.001)
 
 
 def data_received(data, port):
