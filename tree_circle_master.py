@@ -42,9 +42,11 @@ def update_leds():
 
 def data_received(data, port):
 	print(f"{port} ==> {data}")
-	decoded_data = data.decode('ascii')
+	decoded_data = str(data.decode('ascii'))
+	decoded_data = decoded_data.strip("\n")
+	if decoded_data.count(";") > 1:
+		return
 	split_msg = decoded_data[:-1].split(' ')
-	print(split_msg)
 
 	if port == PYTHON_CONTROL_PORT:
 		cmd_tree = int(split_msg[0])
@@ -69,7 +71,12 @@ def data_received(data, port):
 						if amplitude > 250:
 							# activate lightening
 							tree_obj.tree_data['mode_data']['should_trigger'] = True
-							pass
+				if tree_obj.mode == Modes.SHIMMER:
+					if len(split_msg) >= 2 and split_msg[0] == "amplitude":
+						# set amplitude
+						amplitude = split_msg[1]
+						tree_obj.tree_data['amplitude'] = (float(amplitude) - 40)/80
+
 			except IndexError:
 				pass
 
