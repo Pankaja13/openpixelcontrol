@@ -1,3 +1,4 @@
+import gc
 import time
 
 from twisted.internet import reactor, task
@@ -86,6 +87,8 @@ def loop_failed(failure):
 
 
 if __name__ == '__main__':
+
+	# gc.disable()
 
 	# add trees from config
 	for this_tree_config in trees_config:
