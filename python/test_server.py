@@ -3,7 +3,7 @@ import traceback
 from twisted.internet import protocol, reactor
 from twisted.internet.protocol import Factory
 
-from python.config import PD_TREE_PORT_PREFIX, PYTHON_CONTROL_PORT
+from python.config import PD_TREE_PORT_PREFIX, PYTHON_CONTROL_PORT, trees_config
 
 listeners = {}
 
@@ -27,6 +27,16 @@ class Echo(protocol.Protocol):
 			client.transport.write(message.encode('ascii'))
 		except KeyError:
 			print(f"Client {tree_no} not connected")
+
+	@staticmethod
+	def send_from_all_tree(message):
+		try:
+			for port in listeners:
+				if PD_TREE_PORT_PREFIX < port < PD_TREE_PORT_PREFIX + 1000:
+					client = listeners[port]
+					client.transport.write(message.encode('ascii'))
+		except KeyError:
+			pass
 
 	@staticmethod
 	def send_from_control(message):
@@ -55,6 +65,12 @@ class Echo(protocol.Protocol):
 				return
 			split_data: list = decoded_data[:-1].split(' ')
 			if split_data[0] == "tree":
+				if split_data[1] == 'all':
+					message = ' '.join(split_data[2:]) + ';'
+					print(f'send data from all tree: {message}')
+					self.send_from_all_tree(' '.join(split_data[2:]) + ';')
+					return
+
 				tree_no = int(split_data[1])
 				print(f'send data from tree number {tree_no}')
 				self.send_from_tree(tree_no, ' '.join(split_data[2:]) + ';')
@@ -80,8 +96,11 @@ class EchoFactory(Factory):
 
 
 if __name__ == '__main__':
-	for x in range(1, 26):
-		reactor.listenTCP(PD_TREE_PORT_PREFIX + x, EchoFactory())
+	for tree in trees_config:
+		port = tree['pd_port']
+		reactor.listenTCP(port, EchoFactory())
+		print("listen", port)
+
 	reactor.listenTCP(PYTHON_CONTROL_PORT, EchoFactory())
 	reactor.listenTCP(2000, EchoFactory())
 	reactor.run()

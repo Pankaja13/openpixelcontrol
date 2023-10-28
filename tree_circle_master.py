@@ -2,25 +2,22 @@ import time
 
 from twisted.internet import reactor, task
 
-from python.config import trees_config, PYTHON_CONTROL_PORT, PD_TREE_PORT_PREFIX, SHOW_FPS, SHOW_LAST_UPDATE
+from python.config import trees_config, PYTHON_CONTROL_PORT, PD_TREE_PORT_PREFIX, SHOW_FPS, SHOW_LAST_UPDATE, TARGET_FPS
 from python.mode_manager import Modes, Tree
 from python.twisted_com import Factory
 from python.utils import flush_all_pixels
 
 trees_data = []
-
-for this_tree_config in trees_config:
-	mode_id = this_tree_config.get('default_mode') or 1
-	trees_data.append(Tree(Modes(mode_id), this_tree_config['host'], this_tree_config['channel']))
-
-last_update = 0
+pd_ports = []
+last_update = time.time()
 
 
 def update_leds():
 	list_start = time.time()
 	global last_update
 	if SHOW_LAST_UPDATE:
-		print('last Update', time.time() - last_update)
+		interval = time.time() - last_update
+		print('last Update', time.time() - last_update, 1/interval)
 	last_update = time.time()
 	for number, tree in enumerate(trees_data):
 		start = time.time()
@@ -57,11 +54,10 @@ def data_received(data, port):
 			print(tree_obj.mode)
 	else:
 		# message from tree
-		if PD_TREE_PORT_PREFIX < port < PD_TREE_PORT_PREFIX + 25:
+		if port in pd_ports:
 			try:
-				tree_no = port - PD_TREE_PORT_PREFIX
-				tree_obj: Tree = trees_data[tree_no - 1]
-
+				tree_obj: Tree = next((this_tree for this_tree in trees_data if this_tree.pd_port == port), None)
+				print(tree_obj, '>>>>>>>>>>>>>>>>>')
 				if tree_obj.mode == Modes.RAIN:
 					if len(split_msg) >= 2 and split_msg[0] == "amplitude":
 						# set amplitude
@@ -89,19 +85,26 @@ def loop_failed(failure):
 	reactor.stop()
 
 
-f = Factory(data_received)
-for x in range(2, 26):
-	reactor.connectTCP("localhost", PD_TREE_PORT_PREFIX + x, f)
-reactor.connectTCP("localhost", PYTHON_CONTROL_PORT, f)
+if __name__ == '__main__':
 
-fps = 120
+	# add trees from config
+	for this_tree_config in trees_config:
+		mode_id = this_tree_config.get('default_mode') or 1
+		pd_port = this_tree_config['pd_port']
+		pd_ports.append(pd_port)
+		trees_data.append(Tree(Modes(mode_id), this_tree_config['host'], this_tree_config['channel'], pd_port))
 
-loop = task.LoopingCall(update_leds)
-loopDeferred = loop.start(1 / fps)
-loopDeferred.addErrback(loop_failed)
+	f = Factory(data_received)
+	for port in pd_ports:
+		reactor.connectTCP("localhost", port, f)
+	reactor.connectTCP("localhost", PYTHON_CONTROL_PORT, f)
 
-try:
-	reactor.run()
-finally:
-	for tree in trees_data:
-		flush_all_pixels(tree.send_data)
+	loop = task.LoopingCall(update_leds)
+	loopDeferred = loop.start(1 / TARGET_FPS)
+	loopDeferred.addErrback(loop_failed)
+
+	try:
+		reactor.run()
+	finally:
+		for tree in trees_data:
+			flush_all_pixels(tree.send_data)

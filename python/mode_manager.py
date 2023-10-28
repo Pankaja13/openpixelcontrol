@@ -43,12 +43,13 @@ class Tree:
 		Modes.SHIMMER: shimmer.update
 	}
 
-	def __init__(self, mode: Modes, host, channel):
+	def __init__(self, mode: Modes, host, channel, pd_port):
 		self.tree_data = self.init_functions[mode]()
 		self.mode = mode
 		self.last_led_update = datetime.datetime.now()
 		self.host = host
 		self.channel = channel
+		self.pd_port = pd_port
 
 		if host not in self.clients:
 			client = opc.Client(host, protocol=PROTOCOL)
