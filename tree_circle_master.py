@@ -4,7 +4,8 @@ import time
 
 from twisted.internet import reactor, task
 
-from python.config import trees_config, PYTHON_CONTROL_PORT, PD_TREE_PORT_PREFIX, SHOW_FPS, SHOW_LAST_UPDATE, TARGET_FPS
+from python.config import trees_config, PYTHON_CONTROL_PORT, PD_TREE_PORT_PREFIX, SHOW_FPS, SHOW_LAST_UPDATE, \
+	TARGET_FPS, ENABLE_NETWORKING
 from python.mode_manager import Modes, Tree
 from python.twisted_com import Factory
 from python.utils import flush_all_pixels
@@ -99,9 +100,11 @@ if __name__ == '__main__':
 		trees_data.append(Tree(Modes(mode_id), this_tree_config['host'], this_tree_config['channel'], pd_port))
 
 	f = Factory(data_received)
-	for port in pd_ports:
-		reactor.connectTCP("localhost", port, f)
-	reactor.connectTCP("localhost", PYTHON_CONTROL_PORT, f)
+
+	if ENABLE_NETWORKING:
+		for port in pd_ports:
+			reactor.connectTCP("localhost", port, f)
+		reactor.connectTCP("localhost", PYTHON_CONTROL_PORT, f)
 
 	loop = task.LoopingCall(update_leds)
 	loopDeferred = loop.start(1 / TARGET_FPS)
