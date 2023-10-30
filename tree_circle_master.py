@@ -18,9 +18,8 @@ last_update = time.time()
 def update_leds():
 	list_start = time.time()
 	global last_update
-	if SHOW_LAST_UPDATE:
-		interval = time.time() - last_update
-		print('last Update', ' ' * (40 if interval > 1 else 0), time.time() - last_update, 1/interval)
+	interval = time.time() - last_update
+	# print('last Update', ' ' * (40 if interval > 1 else 0), time.time() - last_update, 1/interval)
 	last_update = time.time()
 	for number, tree in enumerate(trees_data):
 		start = time.time()

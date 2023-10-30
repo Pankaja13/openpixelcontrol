@@ -1,8 +1,9 @@
 import datetime
+import time
 from enum import Enum
 
 from python import opc
-from python.config import leds_per_ring, PROTOCOL
+from python.config import leds_per_ring, PROTOCOL, SHOW_LAST_UPDATE, TARGET_FPS
 from python.modes import twinkle, lightning, rain, circle_load, jump, shimmer
 
 
@@ -50,6 +51,7 @@ class Tree:
 		self.host = host
 		self.channel = channel
 		self.pd_port = pd_port
+		self._last_update = time.time()
 
 		if host not in self.clients:
 			client = opc.Client(host, protocol=PROTOCOL)
@@ -73,4 +75,9 @@ class Tree:
 
 	def send_data(self, pixels):
 		# print("channel", self.channel)
-		return self.clients.get(self.host).put_pixels(pixels, channel=self.channel)
+		interval = time.time() - self._last_update
+		if SHOW_LAST_UPDATE:
+			if interval > 0.3:
+				print(interval, 1/interval)
+		self.clients.get(self.host).put_pixels(pixels, channel=self.channel)
+		self._last_update = time.time()
