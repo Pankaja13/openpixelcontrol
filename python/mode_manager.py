@@ -6,6 +6,8 @@ from python import opc
 from python.config import leds_per_ring, PROTOCOL, SHOW_LAST_UPDATE, TARGET_FPS
 from python.modes import twinkle, lightning, rain, circle_load, jump, shimmer
 
+count = 0
+
 
 def off_leds(_data):
 	return [(0, 0, 0) for _ in range(leds_per_ring)]
@@ -78,6 +80,8 @@ class Tree:
 		interval = time.time() - self._last_update
 		if SHOW_LAST_UPDATE:
 			if interval > 0.1:
-				print(interval, 1/interval)
+				global count
+				count += 1
+				print(count, interval, 1/interval)
 		self.clients.get(self.host).put_pixels(pixels, channel=self.channel)
 		self._last_update = time.time()
