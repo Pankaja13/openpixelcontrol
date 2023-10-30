@@ -38,8 +38,6 @@ import struct
 import sys
 
 
-f = open('/dev/null', 'w')
-sys.stdout = f
 
 SET_PIXEL_COLOURS = 0  # "Set pixel colours" command (see openpixelcontrol.org)
 
@@ -174,7 +172,11 @@ class Client(object):
 
         self._debug('put_pixels: sending pixels to server')
         try:
-            print(message)
+            stdout = sys.stdout
+            with open('/dev/null', 'w') as sys.stdout:
+                print(message, file=sys.stdout)
+            sys.stdout = stdout
+
         except socket.error:
             self._debug('put_pixels: connection lost.  could not send pixels.')
             self._socket = None
