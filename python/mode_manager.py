@@ -77,7 +77,7 @@ class Tree:
 		# print("channel", self.channel)
 		interval = time.time() - self._last_update
 		if SHOW_LAST_UPDATE:
-			if interval > 0.3:
+			if interval > 0.1:
 				print(interval, 1/interval)
 		self.clients.get(self.host).put_pixels(pixels, channel=self.channel)
 		self._last_update = time.time()
