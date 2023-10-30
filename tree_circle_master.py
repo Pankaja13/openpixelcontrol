@@ -1,3 +1,4 @@
+import argparse
 import datetime
 import gc
 import time
@@ -89,14 +90,30 @@ def loop_failed(failure):
 
 if __name__ == '__main__':
 
-	# gc.disable()
+	parser = argparse.ArgumentParser()
+	parser.add_argument('--host', '-H', type=str,)
+	parser.add_argument('-pd_port', '-p', type=int)
+	parser.add_argument('-c', '--channel', type=int, default=0)
+	parser.add_argument('-m', '--default_mode', type=int, default=4)
 
-	# add trees from config
-	for this_tree_config in trees_config:
-		mode_id = this_tree_config.get('default_mode') or 1
-		pd_port = this_tree_config['pd_port']
-		pd_ports.append(pd_port)
-		trees_data.append(Tree(Modes(mode_id), this_tree_config['host'], this_tree_config['channel'], pd_port))
+	args = parser.parse_args()
+
+	if args.host and args.pd_port:
+		print(args)
+		mode_id = args.default_mode
+		trees_data.append(Tree(Modes(mode_id), args.host, args.channel, args.pd_port))
+	else:
+		# add trees from config
+		for this_tree_config in trees_config:
+			mode_id = this_tree_config.get('default_mode') or 1
+			pd_port = this_tree_config['pd_port']
+			pd_ports.append(pd_port)
+			trees_data.append(Tree(Modes(mode_id), this_tree_config['host'], this_tree_config['channel'], pd_port))
+
+	for tree in trees_data:
+		print(tree.host, tree.pd_port, tree.mode, tree.channel)
+
+	exit(0)
 
 	f = Factory(data_received)
 
