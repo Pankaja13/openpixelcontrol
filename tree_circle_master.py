@@ -113,8 +113,6 @@ if __name__ == '__main__':
 	for tree in trees_data:
 		print(tree.host, tree.pd_port, tree.mode, tree.channel)
 
-	exit(0)
-
 	f = Factory(data_received)
 
 	if ENABLE_NETWORKING:
