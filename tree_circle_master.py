@@ -1,12 +1,10 @@
 import argparse
-import datetime
-import gc
 import time
 
 from twisted.internet import reactor, task
 
-from python.config import trees_config, PYTHON_CONTROL_PORT, PD_TREE_PORT_PREFIX, SHOW_FPS, SHOW_LAST_UPDATE, \
-	TARGET_FPS, ENABLE_NETWORKING
+from python.config import trees_config, SHOW_FPS, SHOW_LAST_UPDATE, \
+	TARGET_FPS, ENABLE_NETWORKING, AUDIO_PC_IP
 from python.mode_manager import Modes, Tree
 from python.twisted_com import Factory
 from python.utils import flush_all_pixels
@@ -40,44 +38,46 @@ def update_leds():
 	# time.sleep(0.001)
 
 
-def data_received(data, port):
-	print(f"{port} ==> {data}")
-	decoded_data = str(data.decode('ascii'))
-	decoded_data = decoded_data.strip("\n")
-	if decoded_data.count(";") > 1:
-		return
-	split_msg = decoded_data[:-1].split(' ')
+def buffer_messages(encoded_messages):
+	decoded_data = str(encoded_messages.decode('ascii'))
+	decoded_data = decoded_data.replace("\n", "").strip()
+	split_data = decoded_data.split(';')[:-1]
 
-	if port == PYTHON_CONTROL_PORT:
-		cmd_tree = int(split_msg[0])
-		if split_msg[1] == "mode":
-			new_mode = Modes(int(split_msg[2]))
-			tree_obj: Tree = trees_data[cmd_tree - 1]
-			tree_obj.reinit(new_mode)
-			print(tree_obj.mode)
-	else:
-		# message from tree
-		if port in pd_ports:
-			try:
-				tree_obj: Tree = next((this_tree for this_tree in trees_data if this_tree.pd_port == port), None)
-				print(tree_obj, '>>>>>>>>>>>>>>>>>')
-				if tree_obj.mode == Modes.RAIN:
-					if len(split_msg) >= 2 and split_msg[0] == "amplitude":
-						# set amplitude
-						amplitude = int(split_msg[1])
-						tree_obj.tree_data['mode_data']['rain_leds'] = amplitude
+	for message in split_data:
+		if "sound" in message:
+			return message
 
-						if amplitude > 250:
-							# activate lightening
-							tree_obj.tree_data['mode_data']['should_trigger'] = True
-				if tree_obj.mode == Modes.SHIMMER:
-					if len(split_msg) >= 2 and split_msg[0] == "amplitude":
-						# set amplitude
-						amplitude = split_msg[1]
-						tree_obj.tree_data['amplitude'] = (float(amplitude) - 40)/80
+	return split_data[-1]
 
-			except IndexError:
-				pass
+
+def data_received(data, this_port):
+	# print(f"{port} ==> {data}")
+	message = buffer_messages(data)
+	split_msg = message.split(" ")
+	# message from tree
+	if this_port in pd_ports:
+		try:
+			tree_obj: Tree = next((this_tree for this_tree in trees_data if this_tree.pd_port == port), None)
+			# print(tree_obj.pd_port, '>>>>>>>>>>>>>>>>>')
+			# print(split_msg)
+
+			if split_msg[0] == 'sound':
+				print('mode change!', split_msg)
+				if len(split_msg) >= 3:
+					length_of_sound_ms = int(float(split_msg[2]))
+					mode, sound_file = split_msg[1].split('/')
+
+					if tree_obj.mode == Modes.RAIN and sound_file == "thunder.wav":
+						# activate lightening
+						tree_obj.tree_data['mode_data']['should_trigger'] = True
+
+			elif len(split_msg) >= 2 and split_msg[0] == "amplitude":
+				# set amplitude
+				amplitude = float(split_msg[1])
+				tree_obj.tree_data['mode_data']['rain_leds'] = int(float(amplitude))
+
+		except IndexError:
+			pass
 
 
 def loop_failed(failure):
@@ -117,8 +117,7 @@ if __name__ == '__main__':
 
 	if ENABLE_NETWORKING:
 		for port in pd_ports:
-			reactor.connectTCP("localhost", port, f)
-		reactor.connectTCP("localhost", PYTHON_CONTROL_PORT, f)
+			reactor.connectTCP(AUDIO_PC_IP, port, f)
 
 	loop = task.LoopingCall(update_leds)
 	loopDeferred = loop.start(1 / TARGET_FPS)
