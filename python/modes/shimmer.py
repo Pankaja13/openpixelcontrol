@@ -10,7 +10,8 @@ def init():
 		'shimmer_base': create_shimmer_base(),
 		'shimmer_last_rotate': datetime.now(),
 		'color': (125, 250, 34),
-		'amplitude': 1.0
+		'amplitude': 1.0,
+		'average_window': [0] * 10
 	}
 
 

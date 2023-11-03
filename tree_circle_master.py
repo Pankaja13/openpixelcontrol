@@ -9,7 +9,7 @@ from python.config import trees_config, SHOW_FPS, TARGET_FPS, ENABLE_NETWORKING,
 	leds_per_ring
 from python.mode_manager import Modes, Tree
 from python.twisted_com import Factory
-from python.utils import flush_all_pixels, random_color_rgb
+from python.utils import flush_all_pixels, random_color_rgb, translate
 
 trees_data = []
 pd_ports = []
@@ -108,10 +108,22 @@ def data_received(data, this_port):
 						tree_obj.tree_data['data']['reverse'] = random.choice([True, False])
 
 			elif len(split_msg) >= 2 and split_msg[0] == "amplitude":
+				# Set Amplitude
+				amplitude = int(float(split_msg[1]))
 				if tree_obj.mode == Modes.RAIN:
-					# set amplitude
-					amplitude = float(split_msg[1])
-					tree_obj.tree_data['mode_data']['rain_leds'] = int(float(amplitude))
+					tree_obj.tree_data['mode_data']['rain_leds'] = amplitude
+
+				if tree_obj.mode == Modes.SHIMMER:
+					# print(amplitude, translate(amplitude, 50, 80, 0.2, 0.9))
+					translated_amplitude = translate(amplitude, 50, 80, 0.2, 0.9)
+
+					average_window: list = tree_obj.tree_data['average_window'][1:]
+					average_window.append(translated_amplitude)
+
+					print(average_window)
+
+					tree_obj.tree_data['amplitude'] = sum(average_window) / len(average_window)
+					tree_obj.tree_data['average_window'] = average_window
 
 		except IndexError:
 			pass
