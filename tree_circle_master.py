@@ -4,7 +4,7 @@ import time
 from twisted.internet import reactor, task
 
 from python.config import trees_config, SHOW_FPS, SHOW_LAST_UPDATE, \
-	TARGET_FPS, ENABLE_NETWORKING, AUDIO_PC_IP
+	TARGET_FPS, ENABLE_NETWORKING, AUDIO_PC_IP, mode_str_to_int
 from python.mode_manager import Modes, Tree
 from python.twisted_com import Factory
 from python.utils import flush_all_pixels
@@ -65,16 +65,25 @@ def data_received(data, this_port):
 				print('mode change!', split_msg)
 				if len(split_msg) >= 3:
 					length_of_sound_ms = int(float(split_msg[2]))
-					mode, sound_file = split_msg[1].split('/')
+					mode_str, sound_file = split_msg[1].split('/')
+					try:
+						target_mode = Modes(mode_str_to_int[mode_str])
+						if target_mode != tree_obj.mode:
+							print('Changing mode to', target_mode)
+							tree_obj.reinit(target_mode)
+
+					except BaseException:
+						print("Mode parse fail")
 
 					if tree_obj.mode == Modes.RAIN and sound_file == "thunder.wav":
 						# activate lightening
 						tree_obj.tree_data['mode_data']['should_trigger'] = True
 
 			elif len(split_msg) >= 2 and split_msg[0] == "amplitude":
-				# set amplitude
-				amplitude = float(split_msg[1])
-				tree_obj.tree_data['mode_data']['rain_leds'] = int(float(amplitude))
+				if tree_obj.mode == Modes.RAIN:
+					# set amplitude
+					amplitude = float(split_msg[1])
+					tree_obj.tree_data['mode_data']['rain_leds'] = int(float(amplitude))
 
 		except IndexError:
 			pass
