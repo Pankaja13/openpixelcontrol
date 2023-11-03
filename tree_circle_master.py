@@ -6,7 +6,7 @@ import time
 from twisted.internet import reactor, task
 
 from python.config import trees_config, SHOW_FPS, TARGET_FPS, ENABLE_NETWORKING, AUDIO_PC_IP, mode_str_to_int, \
-	leds_per_ring
+	leds_per_ring, chant_file_to_color
 from python.mode_manager import Modes, Tree
 from python.twisted_com import Factory
 from python.utils import flush_all_pixels, random_color_rgb, translate
@@ -86,6 +86,13 @@ def data_received(data, this_port):
 					except BaseException:
 						print("Mode parse fail")
 
+					if tree_obj.mode == Modes.SHIMMER:
+						try:
+							color = chant_file_to_color[sound_file]
+							tree_obj.tree_data['color'] = color
+						except BaseException:
+							print('filename lookup error')
+
 					if tree_obj.mode == Modes.RAIN:
 						if sound_file == "thunder.wav":
 							# activate lightening
@@ -114,13 +121,10 @@ def data_received(data, this_port):
 					tree_obj.tree_data['mode_data']['rain_leds'] = amplitude
 
 				if tree_obj.mode == Modes.SHIMMER:
-					# print(amplitude, translate(amplitude, 50, 80, 0.2, 0.9))
 					translated_amplitude = translate(amplitude, 50, 80, 0.2, 0.9)
 
 					average_window: list = tree_obj.tree_data['average_window'][1:]
 					average_window.append(translated_amplitude)
-
-					print(average_window)
 
 					tree_obj.tree_data['amplitude'] = sum(average_window) / len(average_window)
 					tree_obj.tree_data['average_window'] = average_window
