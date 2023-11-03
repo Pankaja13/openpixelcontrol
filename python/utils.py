@@ -1,6 +1,7 @@
 import datetime
 import random
-import time
+
+from python.color_utils import hls_to_rgb_normalized, random_hls
 
 FLUSH_LARGE_NUMBER = 200
 
@@ -22,3 +23,9 @@ def print_fps(timestamp: datetime.datetime):
 	duration = datetime.datetime.now() - timestamp
 	print(f"fps: {1/duration.total_seconds()}")
 	return datetime.datetime.now()
+
+
+def random_color_rgb():
+	rand_hls = random_hls()
+	hue, light, sat = rand_hls
+	return hls_to_rgb_normalized(hue, light, sat)

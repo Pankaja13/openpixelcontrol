@@ -48,3 +48,6 @@ def update(tree_data):
 			color = (data["color"][0] * fade_mod, data["color"][1] * fade_mod, data["color"][2] * fade_mod)
 			pixels = [color for _ in range(leds_per_ring)]
 			return pixels
+
+	if data['is_filling'] is None:
+		return []

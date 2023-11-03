@@ -2,15 +2,15 @@ import math
 import random
 from datetime import datetime, timedelta
 
-from python.color_utils import rotate
 from python.config import leds_per_ring
+from python.utils import random_color_rgb
 
 
 def init():
-	return {'circle_load_data': {
-		"start_angle": 270,
-		"leave_angle": 180,
-		"color": (255, 100, 100),
+	return {'data': {
+		"start_angle": random.randint(0, 360),
+		"leave_angle": random.randint(0, 360),
+		"color": random_color_rgb(),
 		"number_of_leds": 10,
 		"start_time": datetime.now(),
 		"duration": timedelta(seconds=1),
@@ -19,7 +19,7 @@ def init():
 
 
 def update(tree_data):
-	data = tree_data['circle_load_data']
+	data = tree_data['data']
 
 	if data["leave_angle"] < data["start_angle"]:
 		data["leave_angle"], data["start_angle"] = data["start_angle"], data["leave_angle"]
@@ -36,5 +36,8 @@ def update(tree_data):
 			if 0 <= led_number <= (total_arc_leds - data["number_of_leds"]):
 				led_pos = (led_number + led_offset) % leds_per_ring
 				pixels[led_pos] = data["color"]
+
+	if data['reverse']:
+		pixels.reverse()
 
 	return pixels

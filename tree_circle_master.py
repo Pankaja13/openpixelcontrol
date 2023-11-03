@@ -1,13 +1,15 @@
 import argparse
+import datetime
+import random
 import time
 
 from twisted.internet import reactor, task
 
-from python.config import trees_config, SHOW_FPS, SHOW_LAST_UPDATE, \
-	TARGET_FPS, ENABLE_NETWORKING, AUDIO_PC_IP, mode_str_to_int
+from python.config import trees_config, SHOW_FPS, TARGET_FPS, ENABLE_NETWORKING, AUDIO_PC_IP, mode_str_to_int, \
+	leds_per_ring
 from python.mode_manager import Modes, Tree
 from python.twisted_com import Factory
-from python.utils import flush_all_pixels
+from python.utils import flush_all_pixels, random_color_rgb
 
 trees_data = []
 pd_ports = []
@@ -50,6 +52,14 @@ def buffer_messages(encoded_messages):
 	return split_data[-1]
 
 
+def get_mode_from_string(string):
+	modes = mode_str_to_int[string]
+	if type(modes) == list:
+		return Modes(random.choice(modes))
+	else:
+		return Modes(modes)
+
+
 def data_received(data, this_port):
 	# print(f"{port} ==> {data}")
 	message = buffer_messages(data)
@@ -66,8 +76,9 @@ def data_received(data, this_port):
 				if len(split_msg) >= 3:
 					length_of_sound_ms = int(float(split_msg[2]))
 					mode_str, sound_file = split_msg[1].split('/')
+					duration = datetime.timedelta(milliseconds=length_of_sound_ms)
 					try:
-						target_mode = Modes(mode_str_to_int[mode_str])
+						target_mode = get_mode_from_string(mode_str)
 						if target_mode != tree_obj.mode:
 							print('Changing mode to', target_mode)
 							tree_obj.reinit(target_mode)
@@ -75,9 +86,26 @@ def data_received(data, this_port):
 					except BaseException:
 						print("Mode parse fail")
 
-					if tree_obj.mode == Modes.RAIN and sound_file == "thunder.wav":
-						# activate lightening
-						tree_obj.tree_data['mode_data']['should_trigger'] = True
+					if tree_obj.mode == Modes.RAIN:
+						if sound_file == "thunder.wav":
+							# activate lightening
+							tree_obj.tree_data['mode_data']['should_trigger'] = True
+
+					if tree_obj.mode == Modes.CIRCLE_LOAD:
+						tree_obj.tree_data['circle_load_data']['is_filling'] = True
+						tree_obj.tree_data['circle_load_data']['load_duration'] = duration * 0.7
+						tree_obj.tree_data['circle_load_data']['fade_duration'] = duration * 0.3
+						tree_obj.tree_data['circle_load_data']['load_start_time'] = datetime.datetime.now()
+						tree_obj.tree_data['circle_load_data']['offset'] = random.randint(0, leds_per_ring)
+						tree_obj.tree_data['circle_load_data']['color'] = random_color_rgb()
+
+					if tree_obj.mode == Modes.JUMP:
+						tree_obj.tree_data['data']['start_time'] = datetime.datetime.now()
+						tree_obj.tree_data['data']['duration'] = duration
+						tree_obj.tree_data['data']['start_angle'] = random.randint(0, 360)
+						tree_obj.tree_data['data']['end_angle'] = random.randint(0, 360)
+						tree_obj.tree_data['data']['color'] = random_color_rgb()
+						tree_obj.tree_data['data']['reverse'] = random.choice([True, False])
 
 			elif len(split_msg) >= 2 and split_msg[0] == "amplitude":
 				if tree_obj.mode == Modes.RAIN:
