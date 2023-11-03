@@ -115,5 +115,5 @@ def random_hls(lightness=0.5, saturation=1.0):
 
 
 def hls_to_rgb_normalized(hue, light, sat):
-	print(">>", (hue, light, sat))
+	# print(">>", (hue, light, sat))
 	return normalize(colorsys.hls_to_rgb(hue, light, sat))

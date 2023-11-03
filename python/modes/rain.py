@@ -39,7 +39,7 @@ def rain_init():
 		"intensity": 250,
 		"should_trigger": False,
 		"trigger_time": None,
-		"on_duration_ms": 100,
+		"on_duration_ms": 300,
 		"rain_leds": 300
 	}
 
