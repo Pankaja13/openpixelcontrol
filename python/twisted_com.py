@@ -10,7 +10,7 @@ class Client(protocol.Protocol):
 		self._callback = callback
 
 	def connectionMade(self):
-		pass
+		print("connected to", self.transport.getPeer().port)
 		# string = f"hello from {self.transport.getPeer().port} - {self.master_sender}"
 		# self.transport.write(string.encode('ascii'))
 

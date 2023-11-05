@@ -152,9 +152,10 @@ if __name__ == '__main__':
 	args = parser.parse_args()
 
 	if args.host and args.pd_port:
-		print(args)
 		mode_id = args.default_mode
 		trees_data.append(Tree(Modes(mode_id), args.host, args.channel, args.pd_port))
+		pd_ports.append(args.pd_port)
+
 	else:
 		# add trees from config
 		for this_tree_config in trees_config:
@@ -170,6 +171,7 @@ if __name__ == '__main__':
 
 	if ENABLE_NETWORKING:
 		for port in pd_ports:
+			print(port, "<<<<<<<")
 			reactor.connectTCP(AUDIO_PC_IP, port, f)
 
 	loop = task.LoopingCall(update_leds)
