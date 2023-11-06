@@ -11,7 +11,7 @@ def init():
 		'shimmer_last_rotate': datetime.now(),
 		'color': (125, 250, 34),
 		'amplitude': 1.0,
-		'average_window': [0] * 20
+		'average_window': [0] * 5
 	}
 
 
