@@ -41,16 +41,30 @@ def create_shimmer_base():
 	last_val_target = START_VALUE
 
 	def get_next_point(pos):
-		DIST_MAX = 20
-		dist = random.randint(10, DIST_MAX)
-		val = (random.randint(0, 100) - 50)
+		DIST_MAX = 40
+		dist = random.randint(20, DIST_MAX)
+		val = (random.randint(100, 250))
+		val = val * random.choice([1, -1])
 
 		if pos + DIST_MAX > leds_per_ring:
 			dist = leds_per_ring - pos
 			val = START_VALUE - last_val_target
 
-		if 255 < (val + last_val_target) or (val + last_val_target) < 0:
-			val = val * -1
+		print(val, last_val_target)
+
+		if 255 < (val + last_val_target):
+			# print(val, last_val_target, '+')
+			if last_val_target >= 255:
+				val = val * -1
+			else:
+				val = 255 - last_val_target
+
+		if (val + last_val_target) < 0:
+			# print(val, last_val_target, '-')
+			if last_val_target <= 0:
+				val = val * -1
+			else:
+				val = 0 - last_val_target
 
 		return {
 			'end': pos + dist,
