@@ -22,7 +22,8 @@ def get_led_color():
 
 def rain_init_led():
 	# color, current brightness, isIncreasing?, rate, lastTime
-	rate = random.randrange(1, 8)
+	rate = round(random.triangular(7, 20, 15))
+
 	now = datetime.now()
 	return [get_led_color(), 0, True, rate, now]
 
@@ -31,7 +32,7 @@ def generate_lighting_pattern():
 	envelops = []
 	for _ in range(random.randint(1, 5)):
 		envelops.append(timedelta(milliseconds=(random.randint(50, 200))))
-		envelops.append(timedelta(milliseconds=(random.randint(50, 400))))
+		envelops.append(timedelta(milliseconds=(random.triangular(50, 600, 300))))
 	return envelops
 
 
@@ -51,7 +52,7 @@ def rain_init():
 	mode_data = {
 		"is_on": False,
 		"intensity": 250,
-		"should_trigger": True,
+		"should_trigger": False,
 		"lightning_start_time": None,
 		"rain_leds": 300,
 		"lightning_pattern": lightning_pattern,
@@ -98,7 +99,7 @@ def rain_leds(data):
 			pixels = [(intensity, intensity, intensity) for _ in range(leds_per_ring)]
 			return pixels
 
-	elif not lightning_data['is_on'] and lightning_data['lightning_pattern']:
+	elif not lightning_data['is_on'] and lightning_data['lightning_pattern'] and lightning_data['lightning_start_time']:
 		if datetime.now() - lightning_data['lightning_start_time'] > lightning_data['lightning_pattern'][0]:
 			# print('on again', lightning_data['lightning_pattern'])
 			lightning_data['is_on'] = True
