@@ -4,7 +4,7 @@ from enum import Enum
 
 from python import opc
 from python.config import leds_per_ring, PROTOCOL, SHOW_LAST_UPDATE, TARGET_FPS
-from python.modes import twinkle, lightning, rain, circle_load, jump, shimmer
+from python.modes import twinkle, lightning, rain, circle_load, jump, shimmer, seg_rotate_multiple
 
 count = 0
 
@@ -21,6 +21,7 @@ class Modes(Enum):
 	CIRCLE_LOAD = 5
 	JUMP = 6
 	SHIMMER = 7
+	SEG_ROTATE = 8
 
 
 class Tree:
@@ -33,7 +34,8 @@ class Tree:
 		Modes.RAIN: rain.rain_init,
 		Modes.CIRCLE_LOAD: circle_load.init,
 		Modes.JUMP: jump.init,
-		Modes.SHIMMER: shimmer.init
+		Modes.SHIMMER: shimmer.init,
+		Modes.SEG_ROTATE: seg_rotate_multiple.init
 	}
 
 	led_functions = {
@@ -43,7 +45,8 @@ class Tree:
 		Modes.RAIN: rain.rain_leds,
 		Modes.CIRCLE_LOAD: circle_load.update,
 		Modes.JUMP: jump.update,
-		Modes.SHIMMER: shimmer.update
+		Modes.SHIMMER: shimmer.update,
+		Modes.SEG_ROTATE: seg_rotate_multiple.update
 	}
 
 	def __init__(self, mode: Modes, host, channel, pd_port):
@@ -68,6 +71,9 @@ class Tree:
 		self.tree_data = self.init_functions[mode]()
 		self.mode = mode
 		self.last_led_update = datetime.datetime.now()
+
+	def get_new_init_data(self, **kwargs):
+		return self.init_functions[self.mode](kwargs)
 
 	def get_pixels(self):
 		# if datetime.datetime.now() - self.last_led_update < datetime.timedelta(milliseconds=10):
