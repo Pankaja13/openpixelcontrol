@@ -50,7 +50,7 @@ def create_shimmer_base():
 			dist = leds_per_ring - pos
 			val = START_VALUE - last_val_target
 
-		print(val, last_val_target)
+		# print(val, last_val_target)
 
 		if 255 < (val + last_val_target):
 			# print(val, last_val_target, '+')
