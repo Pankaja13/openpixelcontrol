@@ -27,20 +27,34 @@ def rain_init_led():
 	return [get_led_color(), 0, True, rate, now]
 
 
-def rain_init():
+def generate_lighting_pattern():
+	envelops = []
+	for _ in range(random.randint(1, 5)):
+		envelops.append(timedelta(milliseconds=(random.randint(50, 200))))
+		envelops.append(timedelta(milliseconds=(random.randint(50, 400))))
+	return envelops
 
+
+def rain_init():
 	leds = {}
 	for _ in range(RAIN_INITIAL_LIT_LEDS_PER_TREE):
 		led_on_tree = random.randrange(0, leds_per_ring)
 		leds[led_on_tree] = rain_init_led()
 
+	# lightning_pattern = [timedelta(seconds=0.5), timedelta(seconds=0.2), timedelta(seconds=0.2), timedelta(seconds=0.1), timedelta(seconds=0.3)]
+	lightning_pattern = generate_lighting_pattern()
+
+	for index, envelop in enumerate(lightning_pattern):
+		if index > 0:
+			lightning_pattern[index] += lightning_pattern[index-1]
+
 	mode_data = {
 		"is_on": False,
 		"intensity": 250,
-		"should_trigger": False,
-		"trigger_time": None,
-		"on_duration_ms": 300,
-		"rain_leds": 300
+		"should_trigger": True,
+		"lightning_start_time": None,
+		"rain_leds": 300,
+		"lightning_pattern": lightning_pattern,
 	}
 
 	return {'leds': leds, 'mode_data': mode_data}
@@ -55,21 +69,44 @@ def rain_leds(data):
 	# kill more leds
 	kill_leds_faster = len(data['leds']) > lightning_data['rain_leds']
 
+	def led_rebirth():
+		missing = set(range(leds_per_ring)) - set(data['leds'].keys())
+		random.choice(list(missing))
+		led_on_tree = random.choice(list(missing))
+		data['leds'][led_on_tree] = rain_init_led()
+
 	if lightning_data['should_trigger'] and not lightning_data['is_on']:
-		intensity = lightning_data['intensity']
-		pixels = [(intensity, intensity, intensity) for _ in range(leds_per_ring)]
+		# brights on
 		lightning_data['is_on'] = True
 		lightning_data['should_trigger'] = False
-		lightning_data['trigger_time'] = datetime.now()
-		return pixels
+		lightning_data['lightning_start_time'] = datetime.now()
+		print('switch mode')
 
-	if lightning_data['is_on'] and lightning_data['trigger_time'] and datetime.now() - lightning_data['trigger_time'] > timedelta(milliseconds=lightning_data['on_duration_ms']):
-		pixels = [get_led_color() for _ in range(leds_per_ring)]
-		lightning_data['is_on'] = False
-		return pixels
-	else:
-		if lightning_data['is_on']:
-			return []
+	elif lightning_data['is_on']:
+		# time to change mode
+		if len(lightning_data['lightning_pattern']) == 0 or datetime.now() - lightning_data['lightning_start_time'] > lightning_data['lightning_pattern'][0]:
+
+			# brights off
+			print('off')
+			if lightning_data['lightning_pattern']:
+				lightning_data['lightning_pattern'].pop(0)
+			lightning_data['is_on'] = False
+
+		else:
+			# print('on')
+			intensity = lightning_data['intensity']
+			pixels = [(intensity, intensity, intensity) for _ in range(leds_per_ring)]
+			return pixels
+
+	elif not lightning_data['is_on'] and lightning_data['lightning_pattern']:
+		if datetime.now() - lightning_data['lightning_start_time'] > lightning_data['lightning_pattern'][0]:
+			# print('on again', lightning_data['lightning_pattern'])
+			lightning_data['is_on'] = True
+			if lightning_data['lightning_pattern']:
+				lightning_data['lightning_pattern'].pop(0)
+			print('on')
+
+	if not lightning_data['is_on'] or len(lightning_data['lightning_pattern']) == 0:
 
 		for led, led_data in data['leds'].items():
 			brightness = led_data[1]
@@ -90,24 +127,17 @@ def rain_leds(data):
 
 			pixels[led] = tuple(int(brightness * subpixel / 255) for subpixel in led_data[0])
 
-	def led_rebirth():
-		missing = set(range(leds_per_ring)) - set(data['leds'].keys())
-		random.choice(list(missing))
-		led_on_tree = random.choice(list(missing))
-		data['leds'][led_on_tree] = rain_init_led()
+		if kill_list:
+			for kill_led in kill_list:
+				del data['leds'][kill_led]
 
-	if kill_list:
-		for kill_led in kill_list:
-			del data['leds'][kill_led]
+				# Let Die
+				if not len(data['leds']) > lightning_data['rain_leds']:
+					led_rebirth()
 
-			# Let Die
-			if not len(data['leds']) > lightning_data['rain_leds']:
+		# adding leds
+		if len(data['leds']) < lightning_data['rain_leds']:
+			missing_count = lightning_data['rain_leds'] - len(data['leds'])
+			for _ in range(missing_count):
 				led_rebirth()
-
-	# adding leds
-	if len(data['leds']) < lightning_data['rain_leds']:
-		missing_count = lightning_data['rain_leds'] - len(data['leds'])
-		for _ in range(missing_count):
-			led_rebirth()
-
-	return pixels
+		return pixels
