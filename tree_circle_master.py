@@ -6,7 +6,7 @@ import time
 from twisted.internet import reactor, task
 
 from python.config import trees_config, SHOW_FPS, TARGET_FPS, ENABLE_NETWORKING, AUDIO_PC_IP, mode_str_to_int, \
-	leds_per_ring, chant_file_to_color
+	leds_per_ring, chant_file_to_color, sound_file_envelops
 from python.mode_manager import Modes, Tree
 from python.twisted_com import Factory
 from python.utils import flush_all_pixels, random_color_rgb, translate
@@ -99,9 +99,10 @@ def data_received(data, this_port):
 							tree_obj.tree_data['mode_data']['should_trigger'] = True
 
 					if tree_obj.mode == Modes.CIRCLE_LOAD:
+						load_dur, fade_dur = sound_file_envelops.get(sound_file)
 						tree_obj.tree_data['circle_load_data']['is_filling'] = True
-						tree_obj.tree_data['circle_load_data']['load_duration'] = duration * 0.7
-						tree_obj.tree_data['circle_load_data']['fade_duration'] = duration * 0.3
+						tree_obj.tree_data['circle_load_data']['load_duration'] = datetime.timedelta(milliseconds=load_dur)
+						tree_obj.tree_data['circle_load_data']['fade_duration'] = datetime.timedelta(milliseconds=fade_dur)
 						tree_obj.tree_data['circle_load_data']['load_start_time'] = datetime.datetime.now()
 						tree_obj.tree_data['circle_load_data']['offset'] = random.randint(0, leds_per_ring)
 						tree_obj.tree_data['circle_load_data']['color'] = random_color_rgb()
