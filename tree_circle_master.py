@@ -8,6 +8,7 @@ from twisted.internet import reactor, task
 from python.config import trees_config, SHOW_FPS, TARGET_FPS, ENABLE_NETWORKING, AUDIO_PC_IP, mode_str_to_int, \
 	leds_per_ring, chant_file_to_color, sound_file_envelops
 from python.mode_manager import Modes, Tree
+from python.modes.rain import generate_lighting_pattern
 from python.twisted_com import Factory
 from python.utils import flush_all_pixels, random_color_rgb, translate
 
@@ -97,6 +98,7 @@ def data_received(data, this_port):
 						if sound_file == "thunder.wav":
 							# activate lightening
 							tree_obj.tree_data['mode_data']['should_trigger'] = True
+							tree_obj.tree_data['mode_data']['lightning_pattern'] = generate_lighting_pattern()
 
 					if tree_obj.mode == Modes.CIRCLE_LOAD:
 						load_dur, fade_dur = sound_file_envelops.get(sound_file)
@@ -126,7 +128,7 @@ def data_received(data, this_port):
 				# Set Amplitude
 				amplitude = int(float(split_msg[1]))
 				if tree_obj.mode == Modes.RAIN:
-					tree_obj.tree_data['mode_data']['rain_leds'] = amplitude
+					tree_obj.tree_data['mode_data']['rain_leds'] = amplitude * 2
 
 				if tree_obj.mode == Modes.SHIMMER:
 					translated_amplitude = translate(amplitude, 50, 80, 0.2, 0.9)

@@ -36,18 +36,21 @@ def generate_lighting_pattern():
 	return envelops
 
 
+def new_lighting():
+	lightning_pattern = generate_lighting_pattern()
+
+	for index, envelop in enumerate(lightning_pattern):
+		if index > 0:
+			lightning_pattern[index] += lightning_pattern[index - 1]
+
+	return lightning_pattern
+
+
 def rain_init():
 	leds = {}
 	for _ in range(RAIN_INITIAL_LIT_LEDS_PER_TREE):
 		led_on_tree = random.randrange(0, leds_per_ring)
 		leds[led_on_tree] = rain_init_led()
-
-	# lightning_pattern = [timedelta(seconds=0.5), timedelta(seconds=0.2), timedelta(seconds=0.2), timedelta(seconds=0.1), timedelta(seconds=0.3)]
-	lightning_pattern = generate_lighting_pattern()
-
-	for index, envelop in enumerate(lightning_pattern):
-		if index > 0:
-			lightning_pattern[index] += lightning_pattern[index-1]
 
 	mode_data = {
 		"is_on": False,
@@ -55,7 +58,7 @@ def rain_init():
 		"should_trigger": False,
 		"lightning_start_time": None,
 		"rain_leds": 300,
-		"lightning_pattern": lightning_pattern,
+		"lightning_pattern": new_lighting(),
 	}
 
 	return {'leds': leds, 'mode_data': mode_data}
