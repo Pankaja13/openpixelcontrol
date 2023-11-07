@@ -108,10 +108,14 @@ def data_received(data, this_port):
 						tree_obj.tree_data['circle_load_data']['color'] = random_color_rgb()
 
 					if tree_obj.mode == Modes.JUMP:
+						load_dur, _ = sound_file_envelops.get(sound_file)
+						start_angle = random.randint(0, 360)
+						end_angle = (start_angle + random.randint(90, 360)) % 360
+
 						tree_obj.tree_data['data']['start_time'] = datetime.datetime.now()
-						tree_obj.tree_data['data']['duration'] = duration
-						tree_obj.tree_data['data']['start_angle'] = random.randint(0, 360)
-						tree_obj.tree_data['data']['end_angle'] = random.randint(0, 360)
+						tree_obj.tree_data['data']['duration'] = datetime.timedelta(milliseconds=load_dur)
+						tree_obj.tree_data['data']['start_angle'] = start_angle
+						tree_obj.tree_data['data']['end_angle'] = end_angle
 						tree_obj.tree_data['data']['color'] = random_color_rgb()
 						tree_obj.tree_data['data']['reverse'] = random.choice([True, False])
 
@@ -132,6 +136,9 @@ def data_received(data, this_port):
 
 					tree_obj.tree_data['amplitude'] = sum(average_window) / len(average_window)
 					tree_obj.tree_data['average_window'] = average_window
+
+				if tree_obj.mode == Modes.SEG_ROTATE:
+					tree_obj.tree_data['data']['amplitude'] = translate(amplitude, 50, 80, 0.5, 1)
 
 		except IndexError:
 			pass

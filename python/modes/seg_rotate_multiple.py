@@ -16,10 +16,11 @@ def init(data=None):
 		"start_angle": random.randint(0, 360),
 		"leave_angle": leave,
 		"color": random_color_rgb(),
-		"number_of_leds": round(random.triangular(20, 200, 50)),
+		"number_of_leds": round(random.triangular(20, 100, 50)),
 		"start_time": datetime.now(),
 		"duration": timedelta(seconds=duration_s),
-		"reverse": random.choice([True, False])
+		"reverse": random.choice([True, False]),
+		"amplitude": 1.0
 	}}
 
 
@@ -37,7 +38,7 @@ def update(tree_data):
 		for led_number in range(led_end_location, led_start_location):
 			if 0 <= led_number <= (total_arc_leds - data["number_of_leds"]):
 				led_pos = (led_number + led_offset) % leds_per_ring
-				pixels[led_pos] = data["color"]
+				pixels[led_pos] = data["color"][0] * data['amplitude'], data["color"][1] * data['amplitude'], data["color"][2] * data['amplitude']
 
 	if data['reverse']:
 		pixels.reverse()
