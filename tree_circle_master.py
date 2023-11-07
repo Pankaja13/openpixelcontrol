@@ -101,7 +101,11 @@ def data_received(data, this_port):
 							tree_obj.tree_data['mode_data']['lightning_pattern'] = generate_lighting_pattern()
 
 					if tree_obj.mode == Modes.CIRCLE_LOAD:
-						load_dur, fade_dur = sound_file_envelops.get(sound_file)
+						try:
+							load_dur, fade_dur = sound_file_envelops.get(sound_file)
+						except BaseException:
+							load_dur, fade_dur = length_of_sound_ms * 0.7, length_of_sound_ms * 0.3
+
 						tree_obj.tree_data['circle_load_data']['is_filling'] = True
 						tree_obj.tree_data['circle_load_data']['load_duration'] = datetime.timedelta(milliseconds=load_dur)
 						tree_obj.tree_data['circle_load_data']['fade_duration'] = datetime.timedelta(milliseconds=fade_dur)
@@ -110,7 +114,11 @@ def data_received(data, this_port):
 						tree_obj.tree_data['circle_load_data']['color'] = random_color_rgb()
 
 					if tree_obj.mode == Modes.JUMP:
-						load_dur, _ = sound_file_envelops.get(sound_file)
+						try:
+							load_dur, _ = sound_file_envelops.get(sound_file)
+						except BaseException:
+							load_dur = length_of_sound_ms * 0.7
+
 						start_angle = random.randint(0, 360)
 						end_angle = (start_angle + random.randint(90, 360)) % 360
 
