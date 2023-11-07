@@ -115,7 +115,7 @@ def data_received(data, this_port):
 						tree_obj.tree_data['data']['reverse'] = random.choice([True, False])
 
 					if tree_obj.mode == Modes.SEG_ROTATE:
-						tree_obj.tree_data['data'] = tree_obj.get_new_init_data(duration_s=duration.seconds)
+						tree_obj.tree_data = tree_obj.get_new_init_data(duration_s=duration.seconds)
 
 			elif len(split_msg) >= 2 and split_msg[0] == "amplitude":
 				# Set Amplitude

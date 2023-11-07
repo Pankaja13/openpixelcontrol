@@ -11,11 +11,12 @@ def init(data=None):
 		data = {}
 	duration_s = data.get('duration_s') or 10
 	leave = random.randint(200, 360) * math.ceil(duration_s * random.randint(2, 5))
+
 	return {'data': {
 		"start_angle": random.randint(0, 360),
 		"leave_angle": leave,
 		"color": random_color_rgb(),
-		"number_of_leds": random.randint(20, 200),
+		"number_of_leds": round(random.triangular(20, 200, 50)),
 		"start_time": datetime.now(),
 		"duration": timedelta(seconds=duration_s),
 		"reverse": random.choice([True, False])
