@@ -117,3 +117,16 @@ def random_hls(lightness=0.5, saturation=1.0):
 def hls_to_rgb_normalized(hue, light, sat):
 	# print(">>", (hue, light, sat))
 	return normalize(colorsys.hls_to_rgb(hue, light, sat))
+
+
+def transition(start_color, end_color, progress: float):
+
+	if progress > 1:
+		progress = 1
+
+	if progress < 0:
+		progress = 0
+
+	return tuple([
+		round(start_color[x] * (1-progress) + end_color[x] * progress) for x in range(3)
+	])
