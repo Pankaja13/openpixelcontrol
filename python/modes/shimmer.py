@@ -2,14 +2,14 @@ import random
 from datetime import datetime, timedelta
 
 from python.color_utils import rotate
-from python.config import leds_per_ring
+from python.config import leds_per_ring, chant_file_to_color
 
 
 def init():
 	return {
 		'shimmer_base': create_shimmer_base(),
 		'shimmer_last_rotate': datetime.now(),
-		'color': (125, 250, 34),
+		'color': random.choice(list(chant_file_to_color.values())),
 		'amplitude': 1.0,
 		'average_window': [0] * 5
 	}
