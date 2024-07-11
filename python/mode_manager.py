@@ -4,7 +4,7 @@ from enum import Enum
 
 from python import opc
 from python.config import leds_per_ring, PROTOCOL, SHOW_LAST_UPDATE, TARGET_FPS
-from python.modes import twinkle, lightning, rain, circle_load, jump, shimmer, seg_rotate_multiple
+from python.modes import twinkle, lightning, rain, circle_load, jump, shimmer, seg_rotate_multiple, line_transport
 
 count = 0
 
@@ -22,6 +22,7 @@ class Modes(Enum):
 	JUMP = 6
 	SHIMMER = 7
 	SEG_ROTATE = 8
+	LINE_TRANSPORT = 9
 
 
 class Tree:
@@ -35,7 +36,8 @@ class Tree:
 		Modes.CIRCLE_LOAD: circle_load.init,
 		Modes.JUMP: jump.init,
 		Modes.SHIMMER: shimmer.init,
-		Modes.SEG_ROTATE: seg_rotate_multiple.init
+		Modes.SEG_ROTATE: seg_rotate_multiple.init,
+		Modes.LINE_TRANSPORT: line_transport.init
 	}
 
 	led_functions = {
@@ -46,7 +48,8 @@ class Tree:
 		Modes.CIRCLE_LOAD: circle_load.update,
 		Modes.JUMP: jump.update,
 		Modes.SHIMMER: shimmer.update,
-		Modes.SEG_ROTATE: seg_rotate_multiple.update
+		Modes.SEG_ROTATE: seg_rotate_multiple.update,
+		Modes.LINE_TRANSPORT: line_transport.update,
 	}
 
 	def __init__(self, mode: Modes, host, channel, pd_port):

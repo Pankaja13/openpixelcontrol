@@ -3,7 +3,7 @@ import random
 
 from python.color_utils import hls_to_rgb_normalized, random_hls
 
-FLUSH_LARGE_NUMBER = 200
+FLUSH_LARGE_NUMBER = 300
 
 
 def flush_all_pixels(send_function):

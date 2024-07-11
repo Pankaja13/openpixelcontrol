@@ -150,6 +150,9 @@ def data_received(data, this_port):
 				if tree_obj.mode == Modes.SEG_ROTATE:
 					tree_obj.tree_data['data']['amplitude'] = translate(amplitude, 50, 80, 0.5, 1)
 
+				if tree_obj.mode == Modes.LINE_TRANSPORT:
+					tree_obj.tree_data['amplitude'] = translate(amplitude, 80, 100, 0.2, 1.0)
+
 		except IndexError:
 			pass
 
