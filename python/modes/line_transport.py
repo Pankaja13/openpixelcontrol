@@ -43,8 +43,6 @@ def update(data):
 	if data['color_index'] > 500:
 		data['color_index'] = 0
 
-	print(base_color)
-
 	new_color = (floor(amplitude * base_color[0]), floor(amplitude * base_color[1]), floor(amplitude * base_color[2]))
 
 	data['current_pixels']['trunk'].insert(0, new_color)
