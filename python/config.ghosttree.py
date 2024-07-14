@@ -22,6 +22,22 @@ ENABLE_NETWORKING = True
 # fixme
 AUDIO_PC_IP = '10.0.0.34'
 AUDIO_PC_PORT = 6011
+
+trunk = [0, 100]
+branches = {
+	"branchA": [101, 150],
+	"branchB": [151, 200],
+	"branchC": [201, 250],
+	"branchD": [251, 300],
+	"branchE": [301, 350],
+}
+
+# map amplitude to float brightness
+PD_AMPLITUDE_LOW = 80
+PD_AMPLITUDE_HIGH = 100
+FLOAT_LOW = 0.2
+FLOAT_HIGH = 1.0
+
 # -------------------------------------------------------------------------------
 
 trees_config = [{'host': '0.0.0.0:7891', 'channel': 0, 'default_mode': 9, 'pd_port': AUDIO_PC_PORT}]

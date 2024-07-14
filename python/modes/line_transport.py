@@ -1,21 +1,13 @@
 from math import floor
 
 from python.color_utils import hls_to_rgb_normalized
+from python.config import trunk, branches
 
-trunk = [0, 100]
-branches = {
-	"branchA": [101, 150],
-	"branchB": [151, 200],
-	"branchC": [201, 250],
-	"branchD": [251, 300],
-	"branchE": [301, 350],
-}
-
-black = (0, 0, 0)
 
 def init():
 
 	def init_pixels(led_range: list):
+		black = (0, 0, 0)
 		return [black for _ in range(led_range[0], led_range[1] + 1)]
 
 	data =  {

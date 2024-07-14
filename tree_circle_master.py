@@ -6,7 +6,7 @@ import time
 from twisted.internet import reactor, task
 
 from python.config import trees_config, SHOW_FPS, TARGET_FPS, ENABLE_NETWORKING, AUDIO_PC_IP, mode_str_to_int, \
-	leds_per_ring, chant_file_to_color, sound_file_envelops
+	leds_per_ring, chant_file_to_color, sound_file_envelops, PD_AMPLITUDE_LOW, PD_AMPLITUDE_HIGH, FLOAT_LOW, FLOAT_HIGH
 from python.mode_manager import Modes, Tree
 from python.modes.rain import new_lighting
 from python.twisted_com import Factory
@@ -151,7 +151,7 @@ def data_received(data, this_port):
 					tree_obj.tree_data['data']['amplitude'] = translate(amplitude, 50, 80, 0.5, 1)
 
 				if tree_obj.mode == Modes.LINE_TRANSPORT:
-					tree_obj.tree_data['amplitude'] = translate(amplitude, 80, 100, 0.2, 1.0)
+					tree_obj.tree_data['amplitude'] = translate(amplitude, PD_AMPLITUDE_LOW, PD_AMPLITUDE_HIGH, FLOAT_LOW, FLOAT_HIGH)
 
 		except IndexError:
 			pass
